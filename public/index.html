@@ -1,0 +1,71 @@
+
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Clima Actual con Meteomatics</title>
+        <link rel="stylesheet" href="style/style.css">
+    </head>
+    <body>
+        <h1>Consulta del Clima</h1>
+        <select id="citySelect">
+            <option value="40.7128,-74.0060">Nueva York</option>
+            <option value="48.8566,2.3522">París</option>
+            <option value="35.6895,139.6917">Tokio</option>
+            <option value="55.7558,37.6173">Moscú</option>
+            <option value="34.0522,-118.2437">Los Ángeles</option>
+        </select>
+        <button onclick="getWeather()">Consultar Clima</button>
+        <div id="weatherResult"></div>
+    
+        <script>
+            function getWeather() {
+                const location = document.getElementById('citySelect').value;
+                const parameters = 't_2m:C,precip_1h:mm,wind_speed_10m:ms'; // Parámetros predefinidos
+        
+                fetch(`/weather?parameters=${parameters}&location=${location}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        displayWeatherData(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('weatherResult').textContent = 'Error al cargar los datos del clima';
+                    });
+            }
+        
+            function displayWeatherData(data) {
+                if (data && data.data) {
+                    const weatherDiv = document.getElementById('weatherResult');
+                    weatherDiv.innerHTML = ''; // Limpiar resultados anteriores
+        
+                    data.data.forEach(element => {
+                        const para = document.createElement("p");
+                        const value = element.coordinates[0].dates[0].value;
+                        let text = '';
+        
+                        switch (element.parameter) {
+                            case 't_2m:C':
+                                text = `Temperatura: ${value} °C`;
+                                break;
+                            case 'precip_1h:mm':
+                                text = `Precipitación en la última hora: ${value} mm`;
+                                break;
+                            case 'wind_speed_10m:ms':
+                                text = `Velocidad del viento: ${value} m/s`;
+                                break;
+                        }
+        
+                        para.textContent = text;
+                        weatherDiv.appendChild(para);
+                    });
+                } else {
+                    document.getElementById('weatherResult').textContent = 'No se encontraron datos del clima.';
+                }
+            }
+        </script>
+        
+        
+    </body>
+    </html>
+    
